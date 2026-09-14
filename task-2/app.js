@@ -2,15 +2,15 @@ const API_RECIPES = 'https://dummyjson.com/products'
 
 const container = document.getElementById("container")
 const form = document.getElementById("form")
+const errorMessage = document.getElementById("error-message")
 
-const deleteFunc = async (id) => {
+const deleteFunc = async (id, box) => {
     try {
         const response = await fetch(`${API_RECIPES}/${id}`, {
             method: "DELETE"
         })
         console.log("Удалено")
-        container.innerHTML = ""
-        getProducts()
+        box.remove()
     } catch (err) {
         console.error("Ошибка", err.message);
     }
@@ -26,7 +26,7 @@ const createData = (products) => {
             <button class="delete-box">Удалить</button>
         `)
         const deleteBox = box.querySelector(".delete-box")
-        deleteBox.addEventListener("click", ()=> deleteFunc(product.id))
+        deleteBox.addEventListener("click", ()=> deleteFunc(product.id, box))
         container.append(box)
     })
 }
@@ -64,10 +64,12 @@ const postProduct = async (e) => {
     
         }
     }else {
-        console.error("поля пусты");
+        errorMessage.textContent = "Поле не может быть пустым"
+        setTimeout(() => {
+            errorMessage.textContent = ""
+        },2500)
         
     }
-
 }
 form.addEventListener("submit", postProduct)
 

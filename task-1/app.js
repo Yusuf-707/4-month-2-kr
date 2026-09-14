@@ -2,15 +2,15 @@ const API_RECIPES = 'https://dummyjson.com/recipes'
 
 const container = document.getElementById("container")
 const form = document.getElementById("form")
+const errorMessage = document.getElementById("error-message")
 
-const deleteFunc = async (id) => {
+const deleteFunc = async (id, box) => {
     try {
         const response = await fetch(`${API_RECIPES}/${id}`, {
             method: "DELETE"
         })
         console.log("Удалено")
-        container.innerHTML = ""
-        getRecipes()
+        box.remove()
     } catch (err) {
         console.error("Ошибка", err.message);
     }
@@ -26,7 +26,7 @@ const createData = (recipes) => {
             <button class="delete-box">Удалить</button>
         `)
         const deleteBox = box.querySelector(".delete-box")
-        deleteBox.addEventListener("click", ()=> deleteFunc(recipe.id))
+        deleteBox.addEventListener("click", ()=> deleteFunc(recipe.id, box))
         container.append(box)
     })
 }
@@ -43,24 +43,31 @@ const getRecipes = async () => {
 
 const postFood = async (e) => {
     e.preventDefault()
-    const name = document.getElementById("name-food").value
-    try {
-
-        const response = await fetch(`${API_RECIPES}/add`, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json",
-            },
-            body: JSON.stringify({
-                name,
+    const name = document.getElementById("name-food").value.trim()
+    if(name.length > 0){
+        try {
+            const response = await fetch(`${API_RECIPES}/add`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    name,
+                })
             })
-        })
-        const data = await response.json()
-        console.log(data);
-        form.reset()
-    } catch (err) {
-        console.error("Ошибка", err.message);
-
+            const data = await response.json()
+            console.log(data);
+            createData([data])
+            form.reset()
+        } catch (err) {
+            console.error("Ошибка", err.message);
+    
+        }
+    }else {
+         errorMessage.textContent = "Поле не может быть пустым"
+        setTimeout(() => {
+            errorMessage.textContent = ""
+        },2500)
     }
 
 }
